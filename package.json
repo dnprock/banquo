@@ -10,8 +10,9 @@
     "type": "git",
     "url": "https://github.com/kevinschaul/depict.git"
   },
+  "main": "./depict.js",
   "bin": {
-    "depict": "./src/depict.js"
+    "depict": "./depict.js"
   },
   "preferGlobal": true,
   "dependencies": {
