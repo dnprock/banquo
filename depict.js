@@ -1,109 +1,133 @@
-#!/usr/bin/env node
-
 var child_process = require('child_process');
 var fs = require('fs');
 var optimist = require('optimist');
 var phantom = require('phantom');
 
-function Depict() {
-  var argv = optimist
-    .usage('Usage: depict URL OUT_FILE [OPTIONS]')
-    .options('h', {
-      alias: 'help',
-      describe: 'Display help',
-      default: false
-    })
-    .options('s', {
-      alias: 'selector',
-      describe: 'CSS selector',
-      default: 'body'
-    })
-    .options('c', {
-      alias: 'css',
-      describe: 'CSS file to include in rendering',
-      default: false
-    })
-    .options('H', {
-      alias: 'hide-selector',
-      describe: 'Hide attributes of this selector berore rendering.',
-      default: false
-    })
-    .check(function(argv) {
-      if (argv._.length !== 2) throw new Error('URL and OUT_FILE must be given.');
-    })
-    .argv;
+var Depict = {
+  argv: null,
+  url: null,
+  selector: null,
+  css_file: null,
+  css_text: null,
+  selector: null,
+  out_file: null,
+  hide_selector: null,
 
-  if (argv.h || argv.help) return optimist.showHelp();
+  page: null,
+  ph: null,
 
-  // Append 'http://' if protocol not specified
-  var url = argv._[0];
-  if (!url.match(/^\w+:\/\//)) {
-    url = 'http://' + url;
-  }
+  init: function(_argv) {
+    this.parseArgs(_argv);
+  },
 
-  var selector = argv.s || argv.selector;
-  var out_file = argv._[1];
+  parseArgs: function(_argv) {
+    this.argv = optimist
+      .usage('Usage: depict URL OUT_FILE [OPTIONS]')
+      .options('h', {
+        alias: 'help',
+        describe: 'Display help',
+        default: false
+      })
+      .options('s', {
+        alias: 'selector',
+        describe: 'CSS selector',
+        default: 'body'
+      })
+      .options('c', {
+        alias: 'css',
+        describe: 'CSS file to include in rendering',
+        default: false
+      })
+      .options('H', {
+        alias: 'hide-selector',
+        describe: 'Hide attributes of this selector berore rendering.',
+        default: false
+      })
+      .check(function(argv) {
+        if (argv._.length !== 2) throw new Error('URL and OUT_FILE must be given.');
+      })
+      .argv;
 
-  var css_file = argv.c || argv.css;
-  var css_text = '';
-  if (css_file) {
-      css_text = fs.readFileSync(css_file, 'utf8');
-  }
+    if (this.argv.h || this.argv.help) return optimist.showHelp();
 
-  var hide_selector = argv.H || argv["hide-selector"];
-  if (hide_selector) {
-    css_text += "\n\n " + hide_selector + " { display: none; }\n";
-  }
+    this.url = this.validateURL(this.argv._[0]);
 
-  function depict(url, out_file, selector, css_text) {
-    // phantomjs heavily relies on callback functions
 
-    var page;
-    var ph;
+    this.selector = this.argv.s || this.argv.selector;
+    this.out_file = this.argv._[1];
 
-    console.log('\nRequesting', url);
-
-    phantom.create(createPage)
-
-    function createPage(_ph) {
-      ph = _ph;
-      ph.createPage(openPage);
+    this.css_file = this.argv.c || this.argv.css;
+    this.css_text = '';
+    if (this.css_file) {
+      this.css_text = fs.readFileSync(this.css_file, 'utf8');
     }
 
-    function openPage(_page) {
-      page = _page;
-      page.set('onError', function() { return; });
-      page.open(url, prepForRender);
+    this.hide_selector = this.argv.H || this.argv["hide-selector"];
+    if (this.hide_selector) {
+      this.css_text += "\n\n " + this.hide_selector + " { display: none; }\n";
     }
 
-    function prepForRender(status) {
-      page.evaluate(runInPhantomBrowser, renderImage, selector, css_text);
+  },
+
+  depict: function() {
+  // PhantomJS heavily relies on callback functions. Functions beginning
+  // with `_` are called via this process.
+
+    phantom.create(this._createPage);
+  },
+
+  _createPage: function(_ph) {
+    this.ph = _ph;
+    console.log(this._openPage);
+    // TODO `this._openPage` is undefined
+    this.ph.createPage(this._openPage);
+  },
+
+  _openPage: function(_page) {
+    this.page = _page;
+    page.set('onError', function() { return; });
+    page.open(this.url, this._prepForRender);
+  },
+
+  _prepForRender: function(_status) {
+    page.evaluate(this._runInPhantomBrowser,
+        this._renderImage, this.selector, this.css_text);
+  },
+
+  _runInPhantomBrowser: function(_selector, _css_text) {
+    if (_css_text) {
+      var style = document.createElement('style');
+      style.appendChild(document.createTextNode(_css_text));
+      document.head.appendChild(style);
     }
 
-    function runInPhantomBrowser(selector, css_text) {
-      if (css_text) {
-        var style = document.createElement('style');
-        style.appendChild(document.createTextNode(css_text));
-        document.head.appendChild(style);
+    // Return dimensions to render into image
+    var element = document.querySelector(_selector);
+    return element.getBoundingClientRect();
+  },
+
+  _renderImage: function(_rect) {
+    page.set('clipRect', _rect);
+    page.render(this.out_file, this._cleanup);
+  },
+
+  _cleanup: function() {
+    console.log('Saved imaged to', this.out_file);
+    this.ph.exit();
+  },
+
+  /* Utility */
+  // TODO `validate` is the wrong word
+  validateURL: function(_url) {
+    if (_url && typeof(_url) === 'string') {
+      // Append 'http://' if protocol not specified
+      if (!_url.match(/^w+:\/\//)) {
+        _url = 'http://' + _url;
       }
-
-      var element = document.querySelector(selector);
-      return element.getBoundingClientRect();
-    }
-
-    function renderImage(rect) {
-      page.set('clipRect', rect);
-      page.render(out_file, cleanup);
-    }
-
-    function cleanup() {
-      console.log('Saved imaged to', out_file);
-      ph.exit();
+      return _url;
     }
   }
-
-  depict(url, out_file, selector, css_text);
-}
+};
 
 module.exports = Depict;
 

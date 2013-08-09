@@ -83,3 +83,13 @@ Hide multiple css selectors by using commas:
     us-wine.png \
     -H '.g-us-map-slider, .g-map-legend-click'
 
+## Development
+
+Tests are written with [mocha](http://visionmedia.github.io/mocha/).
+
+    npm install -g mocha
+
+To run tests:
+
+    mocha
+
