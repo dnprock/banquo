@@ -87,9 +87,13 @@ var Depict = {
     }
 
     function prepForRender(_status) {
-      // TODO check `_status`
-      self.page.evaluate(runInPhantomBrowser, renderImage, self.selector,
+      if (_status === 'success') {
+        self.page.evaluate(runInPhantomBrowser, renderImage, self.selector,
           self.css_text);
+      } else {
+        phExit();
+        self.reportError('The requested URL could not be opened.');
+      }
     }
 
     function runInPhantomBrowser(_selector, _css_text) {
@@ -111,9 +115,17 @@ var Depict = {
 
     function cleanup() {
       console.log('Saved imaged to', self.out_file);
+      phExit();
+    }
+
+    function phExit() {
       self.ph.exit();
     }
 
+  },
+
+  reportError: function(_error) {
+    console.error('Error:', _error);
   },
 
   /* Utility */
