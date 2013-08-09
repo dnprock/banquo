@@ -1,6 +1,5 @@
 var child_process = require('child_process');
 var fs = require('fs');
-var optimist = require('optimist');
 var phantom = require('phantom');
 
 var Depict = {
@@ -21,6 +20,12 @@ var Depict = {
   },
 
   parseArgs: function(_argv) {
+    // Have optimist use `_argv` if it exists
+    process.argv = _argv ? _argv: process.argv;
+
+    // Optimist must be required after any changes to process.argv have been made.
+    var optimist = require('optimist');
+
     this.argv = optimist
       .usage('Usage: depict URL OUT_FILE [OPTIONS]')
       .options('h', {
@@ -44,14 +49,14 @@ var Depict = {
         default: false
       })
       .check(function(argv) {
+        console.log(argv);
         if (argv._.length !== 2) throw new Error('URL and OUT_FILE must be given.');
       })
       .argv;
 
     if (this.argv.h || this.argv.help) return optimist.showHelp();
 
-    this.url = this.validateURL(this.argv._[0]);
-
+    this.url = this.formatURL(this.argv._[0]);
 
     this.selector = this.argv.s || this.argv.selector;
     this.out_file = this.argv._[1];
@@ -69,7 +74,7 @@ var Depict = {
 
   },
 
-  depict: function() {
+  depict: function(_callback) {
     // PhantomJS heavily relies on callback functions.
 
     var self = this;
@@ -93,6 +98,7 @@ var Depict = {
       } else {
         phExit();
         self.reportError('The requested URL could not be opened.');
+        self.reportError(self.url);
       }
     }
 
@@ -120,25 +126,25 @@ var Depict = {
 
     function phExit() {
       self.ph.exit();
+      if (_callback) {
+        _callback();
+      }
     }
 
   },
 
+
+  /* Utility */
   reportError: function(_error) {
     console.error('Error:', _error);
   },
 
-  /* Utility */
-  // TODO `validate` is the wrong word
-  validateURL: function(_url) {
+  formatURL: function(_url) {
     if (_url && typeof(_url) === 'string') {
-      // Append 'http://' if protocol not specified
-      // TODO
-      /*
-      if (!_url.match(/^w+:\/\//)) {
+      // Prepend 'http://' if no protocol is specified
+      if (!_url.match(/^\w+:\/\//)) {
         _url = 'http://' + _url;
       }
-      */
       return _url;
     }
   }

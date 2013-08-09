@@ -3,5 +3,5 @@
 var depict = require('../depict.js');
 
 depict.init();
-depict.depict(process.argv);
+depict.depict();
 
