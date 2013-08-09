@@ -12,7 +12,7 @@
   },
   "main": "./depict.js",
   "bin": {
-    "depict": "./depict.js"
+    "depict": "bin/depict"
   },
   "preferGlobal": true,
   "dependencies": {
