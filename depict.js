@@ -70,50 +70,50 @@ var Depict = {
   },
 
   depict: function() {
-  // PhantomJS heavily relies on callback functions. Functions beginning
-  // with `_` are called via this process.
+    // PhantomJS heavily relies on callback functions.
 
-    phantom.create(this._createPage);
-  },
+    var self = this;
+    phantom.create(createPage);
 
-  _createPage: function(_ph) {
-    this.ph = _ph;
-    console.log(this._openPage);
-    // TODO `this._openPage` is undefined
-    this.ph.createPage(this._openPage);
-  },
-
-  _openPage: function(_page) {
-    this.page = _page;
-    page.set('onError', function() { return; });
-    page.open(this.url, this._prepForRender);
-  },
-
-  _prepForRender: function(_status) {
-    page.evaluate(this._runInPhantomBrowser,
-        this._renderImage, this.selector, this.css_text);
-  },
-
-  _runInPhantomBrowser: function(_selector, _css_text) {
-    if (_css_text) {
-      var style = document.createElement('style');
-      style.appendChild(document.createTextNode(_css_text));
-      document.head.appendChild(style);
+    function createPage(_ph) {
+      self.ph = _ph;
+      self.ph.createPage(openPage);
     }
 
-    // Return dimensions to render into image
-    var element = document.querySelector(_selector);
-    return element.getBoundingClientRect();
-  },
+    function openPage(_page) {
+      self.page = _page;
+      self.page.set('onError', function() { return; });
+      self.page.open(self.url, prepForRender);
+    }
 
-  _renderImage: function(_rect) {
-    page.set('clipRect', _rect);
-    page.render(this.out_file, this._cleanup);
-  },
+    function prepForRender(_status) {
+      // TODO check `_status`
+      self.page.evaluate(runInPhantomBrowser, renderImage, self.selector,
+          self.css_text);
+    }
 
-  _cleanup: function() {
-    console.log('Saved imaged to', this.out_file);
-    this.ph.exit();
+    function runInPhantomBrowser(_selector, _css_text) {
+      if (_css_text) {
+        var style = document.createElement('style');
+        style.appendChild(document.createTextNode(_css_text));
+        document.head.appendChild(style);
+      }
+
+      // Return dimensions to render into image
+      var element = document.querySelector(_selector);
+      return element.getBoundingClientRect();
+    }
+
+    function renderImage(_rect) {
+      self.page.set('clipRect', _rect);
+      self.page.render(self.out_file, cleanup);
+    }
+
+    function cleanup() {
+      console.log('Saved imaged to', self.out_file);
+      self.ph.exit();
+    }
+
   },
 
   /* Utility */
@@ -121,12 +121,16 @@ var Depict = {
   validateURL: function(_url) {
     if (_url && typeof(_url) === 'string') {
       // Append 'http://' if protocol not specified
+      // TODO
+      /*
       if (!_url.match(/^w+:\/\//)) {
         _url = 'http://' + _url;
       }
+      */
       return _url;
     }
   }
+
 };
 
 module.exports = Depict;
