@@ -1,0 +1,98 @@
+<!--[if lte IE 8]>
+<style>
+  .g-ie { display: block !important; }
+  .g-ie { display: none !important; }
+</style>
+<![endif]-->
+
+<style>
+@import url(_assets/depict.css);
+</style>
+
+<style>
+
+#g-graphic {
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+.g-ie {
+  display: none;
+}
+
+.g-chart {
+  position: relative;
+  font-size: 11px;
+}
+.g-annotation {
+  fill: #333;
+  stroke: none;
+}
+
+.g-path {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 2px;
+}
+
+</style>
+
+<div id="g-graphic">
+  <div class="g-chart">
+    <div id="g-chart-target">
+      <img class="g-ie" alt="chart 1" src="_assets/fallback/g-chart-1.png" />
+    </div>
+  </div>
+</div>
+
+<script src="_assets/lib.js"></script>
+<script>(function() {
+
+var data = [
+  { year: 2009, value: 8 },
+  { year: 2010, value: 13 },
+  { year: 2011, value: 12 },
+  { year: 2012, value: 20 },
+  { year: 2013, value: 17 }
+];
+
+var margin = {
+  top: 10,
+  right: 10,
+  bottom: 10,
+  left: 10
+};
+var width = 200 - margin.left - margin.right;
+var height = 200 - margin.top - margin.bottom;
+
+var svg = d3.select("#g-chart-target").append("svg")
+  .attr("id", "g-chart-1")
+  .attr("width", width + margin.left + margin.right)
+  .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var x = d3.scale.linear()
+  .domain(d3.extent(data, function(d) { return d.year; }))
+  .range([0, width])
+
+var y = d3.scale.linear()
+  .domain(d3.extent(data, function(d) { return d.value; }))
+  .range([height, 0])
+
+var path = d3.svg.line()
+  .x(function(d) { return x(d.year); })
+  .y(function(d) { return y(d.value); });
+
+var line = svg.append("path")
+  .attr("class", "g-path")
+  .attr("d", path(data));
+
+var annotation = svg.append("text")
+  .attr("class", "g-annotation")
+  .attr("x", 10)
+  .attr("y", 40)
+  .text("Click for information")
+
+})()</script>
+

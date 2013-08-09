@@ -4,13 +4,13 @@ var phantom = require('phantom');
 
 var Depict = {
   argv: null,
-  url: null,
-  selector: null,
   css_file: null,
   css_text: null,
-  selector: null,
-  out_file: null,
   hide_selector: null,
+  out_file: null,
+  selector: null,
+  selector: null,
+  url: null,
 
   page: null,
   ph: null,
@@ -20,7 +20,7 @@ var Depict = {
   },
 
   parseArgs: function(_argv) {
-    // Have optimist use `_argv` if it exists
+    // Have optimist use `_argv` argument if it exists
     process.argv = _argv ? _argv: process.argv;
 
     // Optimist must be required after any changes to process.argv have been made.
@@ -49,7 +49,6 @@ var Depict = {
         default: false
       })
       .check(function(argv) {
-        console.log(argv);
         if (argv._.length !== 2) throw new Error('URL and OUT_FILE must be given.');
       })
       .argv;
@@ -130,9 +129,7 @@ var Depict = {
         _callback();
       }
     }
-
   },
-
 
   /* Utility */
   reportError: function(_error) {
