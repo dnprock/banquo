@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-var child_process = require('child_process');
+// var child_process = require('child_process');
 var fs            = require('fs');
 var _             = require('underscore')
-var phantom       = require('phantom');
+var phantom       = require('node-phantom');
 var sleep         = require('sleep');
 
 var settings = {
@@ -34,12 +34,12 @@ function depict(opts) {
 
   phantom.create(createPage)
 
-  function createPage(_ph) {
+  function createPage(err, _ph) {
     ph = _ph;
     ph.createPage(openPage);
   }
 
-  function openPage(_page) {
+  function openPage(err, _page) {
     page = _page;
     page.set('onError', function() { return; });
     page.set('viewportSize', {width: settings.viewport_width, height: 900});
@@ -65,16 +65,20 @@ function depict(opts) {
     sleep.sleep(settings.delay);
     page.set('clipRect', rect);
     if (settings.mode != 'save'){
-      console.log(page.renderBase64('PNG'));
-      cleanup();
+      console.log('rendering')
+      page.renderBase64('PNG', renderImage);
     }else{
       page.render(settings.out_file, cleanup)
     }
     // page.render(out_file, cleanup);
   }
 
+  function renderImage(err, image_data){
+    console.log(image_data);
+    cleanup();
+  }
+
   function cleanup() {
-    // console.log(this)
     console.log('Saved imaged to', settings.out_file);
     ph.exit();
   }
