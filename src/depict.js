@@ -13,7 +13,7 @@ var settings = {
   selector: 'body'
 }
 
-function depict(opts) {
+function depict(opts, callback) {
   _.extend(settings, opts);
 
   // Append 'http://' if protocol not specified
@@ -65,21 +65,23 @@ function depict(opts) {
     sleep.sleep(settings.delay);
     page.set('clipRect', rect);
     if (settings.mode != 'save'){
-      console.log('rendering')
-      page.renderBase64('PNG', renderImage);
+      page.renderBase64('PNG', base64Rendered);
     }else{
-      page.render(settings.out_file, cleanup)
+      page.render(settings.out_file, cleanup);
+      callback('Writing to file... ' + settings.out_file);
     }
     // page.render(out_file, cleanup);
   }
 
-  function renderImage(err, image_data){
-    console.log(image_data);
+  function base64Rendered(err, image_data){
+    if (err){
+      console.log(err);
+    }
+    callback(image_data)
     cleanup();
   }
 
   function cleanup() {
-    console.log('Saved imaged to', settings.out_file);
     ph.exit();
   }
 }
