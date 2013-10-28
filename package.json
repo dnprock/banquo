@@ -1,22 +1,21 @@
 {
-  "name": "depict",
-  "version": "0.1.1",
+  "name": "banquo",
+  "version": "0.1.0",
   "author": {
-    "name": "Kevin Schaul",
-    "email": "kevin.schaul@gmail.com",
-    "url": "http://kevin.schaul.io"
+    "name": "Michael Keller",
+    "email": "michael.keller@aljazeera.net",
+    "url": "http://github.com/ajam/banquo"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/kevinschaul/depict.git"
+    "url": "https://github.com/ajam/banquo.git"
   },
   "bin": {
-    "depict": "./src/depict.js"
+    "banquo": "./src/banquo.js"
   },
-  "preferGlobal": true,
+  "preferGlobal": false,
   "dependencies": {
-    "phantom": "~0.5.4",
-    "sleep": "~1.1.1",
+    "node-phantom": "~0.2.5",
     "underscore":"~1.5.2"
   }
 }

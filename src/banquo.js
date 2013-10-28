@@ -1,20 +1,16 @@
 #!/usr/bin/env node
 
-// var child_process = require('child_process');
 var fs            = require('fs');
 var _             = require('underscore')
 var phantom       = require('node-phantom');
-var sleep         = require('sleep');
 
-var settings = {
-  mode: 'save',
-  viewport_width: 1440,
-  delay: 5,
-  selector: 'body'
-}
-
-function depict(opts, callback) {
-  _.extend(settings, opts);
+function banquo(opts, callback) {
+  var settings = _.extend({
+    mode: 'renderBase64',
+    viewport_width: 1440,
+    delay: 5000,
+    selector: 'body'
+  }, opts);
 
   // Append 'http://' if protocol not specified
   if (!settings.url.match(/^\w+:\/\//)) {
@@ -30,7 +26,7 @@ function depict(opts, callback) {
   var page;
   var ph;
 
-  console.log('\nRequesting', settings.url);
+  console.log('Requesting', settings.url);
 
   phantom.create(createPage)
 
@@ -62,15 +58,15 @@ function depict(opts, callback) {
   }
 
   function renderImage(rect) {
-    sleep.sleep(settings.delay);
-    page.set('clipRect', rect);
-    if (settings.mode != 'save'){
-      page.renderBase64('PNG', base64Rendered);
-    }else{
-      page.render(settings.out_file, cleanup);
-      callback('Writing to file... ' + settings.out_file);
-    }
-    // page.render(out_file, cleanup);
+    setTimeout(function(){
+      page.set('clipRect', rect);
+      if (settings.mode != 'save'){
+        page.renderBase64('PNG', base64Rendered);
+      }else{
+        page.render(settings.out_file, cleanup);
+        callback('Writing to file... ' + settings.out_file);
+      }
+    }, settings.delay)
   }
 
   function base64Rendered(err, image_data){
@@ -87,8 +83,5 @@ function depict(opts, callback) {
 }
 
 module.exports = {
-  capture: depict
+  capture: banquo
 }
-
-// depict(opts);
-
