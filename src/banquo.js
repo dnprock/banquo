@@ -38,11 +38,12 @@ function banquo(opts, callback) {
   function openPage(err, _page) {
     page = _page;
     page.set('onError', function() { return; });
+    page.onConsoleMessage = function (msg) { console.log(msg); };
     page.set('viewportSize', {width: settings.viewport_width, height: 900});
     page.open(settings.url, prepForRender);
   }
 
-  function prepForRender(status) {
+  function prepForRender(err, status) {
     page.evaluate(runInPhantomBrowser, renderImage, settings.selector, css_text);
   }
 
@@ -52,12 +53,11 @@ function banquo(opts, callback) {
       style.appendChild(document.createTextNode(css_text));
       document.head.appendChild(style);
     }
-
     var element = document.querySelector(selector);
     return element.getBoundingClientRect();
   }
 
-  function renderImage(rect) {
+  function renderImage(err, rect) {
     setTimeout(function(){
       page.set('clipRect', rect);
       if (settings.mode != 'save'){
