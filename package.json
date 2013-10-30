@@ -6,6 +6,10 @@
     "email": "michael.keller@aljazeera.net",
     "url": "http://github.com/ajam/banquo"
   },
+  "contributors": [
+    "Michael Keller",
+    "Kevin Schaul"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/ajam/banquo.git"
