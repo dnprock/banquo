@@ -17,4 +17,4 @@ banquo.capture(opts, function(image_data){
 })
 ````
 
-You can set up your own service with banquo by cloning [banquo-server](http://github.com/ajam/banquo-server)
+You can set up your own service with banquo by cloning the soon-to-be-released [banquo-server](http://github.com/ajam/banquo-server)
