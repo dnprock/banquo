@@ -27,7 +27,7 @@ banquo.capture(opts, function(image_data){
 
 Key | Options | Description
 --- | --- | ---
-mode | *`save` or `base64` * | The former will save a file to the `out_file` location and return a success string callback. The latter will return the image as a base64 string.
+mode | `save` or `base64`  | The former will save a file to the `out_file` location and return a success string callback. The latter will return the image as a base64 string.
 url | *String* | The website you want to screenshot.
 viewport_width | *Number (pixels)* | The desired browser width. Settings this to a higher number will increase processing time.
 delay | *Number (milliseconds)* | How long to wait after the page has loaded before taking the screenshot. PhantomJS apparently waits for the page to load but if you have a map or other data calculations going on, you'll need to specify a wait time.
