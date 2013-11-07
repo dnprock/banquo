@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 var fs            = require('fs');
 var _             = require('underscore')
 var phantom       = require('node-phantom');
