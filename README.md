@@ -33,8 +33,8 @@ mode |no| `base64` | `save` or `base64`  | The former will save a file to the `o
 url |yes| null | *String* | The website you want to screenshot.
 viewport_width |no| 1440 | *Number (pixels)* | The desired browser width. Settings this to a higher number will increase processing time.
 delay |no| 1000 | *Number (milliseconds)* | How long to wait after the page has loaded before taking the screenshot. PhantomJS apparently waits for the page to load but if you have a map or other data calculations going on, you'll need to specify a wait time.
-selector |no| `body` | *Percent-encoded CSS selector* | The div you want to screenshot.
-css_hide |no| null | *Percent-encoded CSS selector* | Any divs you want to hide, such as zoom buttons on map. Defaults to none.
+selector |no| `body` | *CSS selector* | The div you want to screenshot.
+css_hide |no| null | *CSS selector* | Any divs you want to hide, such as zoom buttons on map. Defaults to none.
 out_file |no| null | *string* | The name / location of the image file you want to save.
 
 You can set up your own service with banquo by cloning [banquo-server](http://github.com/ajam/banquo-server)
