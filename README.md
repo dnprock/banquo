@@ -11,6 +11,8 @@ As a result, Banquo doesn't run on the command line, as Depict does, but instead
 ### Usage
 
 ````
+var banquo = require('banquo');
+
 var opts = {
     mode: 'base64',
     url: 'america.aljazeera.com',
