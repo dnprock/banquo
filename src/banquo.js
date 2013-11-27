@@ -5,8 +5,9 @@ var phantom       = require('node-phantom');
 function banquo(opts, callback) {
   var settings = _.extend({
     mode: 'base64',
-    viewport_width: 1440,
-    delay: 1000,
+    viewport_width: 1280,
+    viewport_height: 900,
+    delay: 5000,
     selector: 'body',
     css_file: ''
   }, opts);
@@ -26,6 +27,7 @@ function banquo(opts, callback) {
   var ph;
 
   console.log('Requesting', settings.url);
+  console.log(settings)
 
   phantom.create(createPage)
 
@@ -38,7 +40,7 @@ function banquo(opts, callback) {
     page = _page;
     page.set('onError', function() { return; });
     page.onConsoleMessage = function (msg) { console.log(msg); };
-    page.set('viewportSize', {width: settings.viewport_width, height: 900});
+    page.set('viewportSize', {width: settings.viewport_width, height: settings.viewport_height});
     page.open(settings.url, prepForRender);
   }
 
