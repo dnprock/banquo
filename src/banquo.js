@@ -45,7 +45,9 @@ function banquo(opts, callback) {
   }
 
   function prepForRender(err, status) {
-    page.evaluate(runInPhantomBrowser, renderImage, settings.selector, css_text);
+    setTimeout(function() {
+      page.evaluate(runInPhantomBrowser, renderImage, settings.selector, css_text);
+    }, settings.delay);
   }
 
   function runInPhantomBrowser(selector, css_text) {
@@ -59,15 +61,13 @@ function banquo(opts, callback) {
   }
 
   function renderImage(err, rect) {
-    setTimeout(function(){
-      page.set('clipRect', rect);
-      if (settings.mode != 'save'){
-        page.renderBase64('PNG', base64Rendered);
-      }else{
-        page.render(settings.out_file, cleanup);
-        callback('Writing to file... ' + settings.out_file);
-      }
-    }, settings.delay)
+    page.set('clipRect', rect);
+    if (settings.mode != 'save'){
+      page.renderBase64('PNG', base64Rendered);
+    }else{
+      page.render(settings.out_file, cleanup);
+      callback('Writing to file... ' + settings.out_file);
+    }
   }
 
   function base64Rendered(err, image_data){
