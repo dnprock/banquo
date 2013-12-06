@@ -1,12 +1,18 @@
 var fs            = require('fs');
+var path          = require('path');
 var _             = require('underscore')
 var phantom       = require('node-phantom');
+var execSync      = require('exec-sync');
+var pngIn         = 'banquo_temp_in.png';
+var pngOut        = 'banquo_temp_out.png';
+var writePath     = path.resolve(__dirname, '../../../../')
 
 function banquo(opts, callback) {
   var settings = _.extend({
     mode: 'base64',
     viewport_width: 1280,
     viewport_height: 900,
+    trim: 0,
     delay: 5000,
     selector: 'body',
     css_file: ''
@@ -74,12 +80,33 @@ function banquo(opts, callback) {
     if (err){
       console.log(err);
     }
+
+    if (settings.trim === '1') {
+      image_data = trimWhitespace(image_data)
+    }
+    
     callback(image_data)
     cleanup();
   }
 
   function cleanup() {
     ph.exit();
+  }
+  
+  function trimWhitespace(image_data) {
+    var fIn  = path.resolve(writePath, pngIn),
+        fOut = path.resolve(writePath, pngOut),
+        result = fs.writeFileSync(fIn, image_data, 'base64'),
+        cmd = "convert -trim " + fIn + " " + fOut
+    
+    execSync(cmd)
+    
+    var data = fs.readFileSync(fOut, 'base64');
+    
+    fs.unlink(fIn)
+    fs.unlink(fOut)
+    
+    return data
   }
 }
 
