@@ -5,7 +5,7 @@ var phantom       = require('node-phantom');
 var execSync      = require('exec-sync');
 var pngIn         = 'banquo_temp_in.png';
 var pngOut        = 'banquo_temp_out.png';
-var writePath     = path.resolve(__dirname, '../../../../')
+var writePath     = path.resolve(__dirname, '/tmp')
 
 function banquo(opts, callback) {
   var settings = _.extend({
