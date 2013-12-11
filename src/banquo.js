@@ -3,9 +3,8 @@ var path          = require('path');
 var _             = require('underscore')
 var phantom       = require('node-phantom');
 var execSync      = require('exec-sync');
-var pngIn         = 'banquo_temp_in.png';
-var pngOut        = 'banquo_temp_out.png';
-var writePath     = path.resolve(__dirname, '/tmp')
+var imgTemp       = 'banquo_temp.png';
+var writePath     = path.resolve(__dirname, '../../../../')
 
 function banquo(opts, callback) {
   var settings = _.extend({
@@ -13,7 +12,9 @@ function banquo(opts, callback) {
     viewport_width: 1280,
     viewport_height: 900,
     trim: 0,
-    delay: 5000,
+    thumbnail: 0,
+    dimension: '256x144',
+    delay: 0,
     selector: 'body',
     css_file: ''
   }, opts);
@@ -81,8 +82,8 @@ function banquo(opts, callback) {
       console.log(err);
     }
 
-    if (settings.trim === '1') {
-      image_data = trimWhitespace(image_data)
+    if (settings.trim === '1' || settings.thumbnail === '1') {
+      image_data = runImageMagick(image_data)
     }
     
     callback(image_data)
@@ -93,18 +94,25 @@ function banquo(opts, callback) {
     ph.exit();
   }
   
-  function trimWhitespace(image_data) {
-    var fIn  = path.resolve(writePath, pngIn),
-        fOut = path.resolve(writePath, pngOut),
-        result = fs.writeFileSync(fIn, image_data, 'base64'),
-        cmd = "convert -trim " + fIn + " " + fOut
+  function runImageMagick(image_data) {
+    var fImg  = path.resolve(writePath, imgTemp),
+        result = fs.writeFileSync(fImg, image_data, 'base64')
+        
+    if (settings.trim === '1') {
+      var cmdTrim = "convert -trim " + fImg + " " + fImg 
+      console.log('Trimming: ' + cmdTrim)
+      execSync(cmdTrim)
+    }
     
-    execSync(cmd)
+    if (settings.thumbnail === '1') {
+      var cmdThumbnail = "convert " + fImg + " -thumbnail " + settings.dimension + " " + fImg
+      console.log('Processing thumbnail: ' + cmdThumbnail)
+      execSync(cmdThumbnail)
+    }
     
-    var data = fs.readFileSync(fOut, 'base64');
+    var data = fs.readFileSync(fImg, 'base64');
     
-    fs.unlink(fIn)
-    fs.unlink(fOut)
+    fs.unlink(fImg)
     
     return data
   }
