@@ -39,8 +39,12 @@ function banquo(opts, callback) {
   phantom.create(createPage)
 
   function createPage(err, _ph) {
-    ph = _ph;
-    ph.createPage(openPage);
+    if (!err) {
+      ph = _ph;
+      ph.createPage(openPage);
+    } else {
+      callback(err);
+    }
   }
 
   function openPage(err, _page) {
